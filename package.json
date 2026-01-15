@@ -1,31 +1,20 @@
 {
-  "name": "mini-coder",
-  "version": "0.1.0",
-  "main": "dist/cli.js",
-  "bin": {
-    "mini-coder": "./dist/cli.js"
-  },
+  "name": "nano-code",
   "type": "module",
-  "scripts": {
-    "test": "jest",
-    "build": "tsc --project tsconfig.json",
-    "start": "node ./dist/cli.js"
-  },
-  "author": "laiso",
-  "license": "MIT",
-  "description": "",
-  "dependencies": {
-    "@anthropic-ai/sdk": "latest",
-    "@modelcontextprotocol/sdk": "latest",
-    "@modelcontextprotocol/server-filesystem": "^0.6.2",
-    "commander": "latest"
-  },
   "devDependencies": {
-    "@types/jest": "^29.5.14",
-    "@types/node": "^22.10.5",
-    "jest": "^29.7.0",
-    "ts-jest": "^29.2.5",
-    "tsx": "latest",
-    "typescript": "^5.7.3"
+    "@types/bun": "latest"
+  },
+  "scripts": {
+    "agent": "bun run bin/cli.ts",
+    "action": "bun run bin/action.ts",
+    "test": "bun test workspace/calculator.test.ts src/core/generate-text.test.ts src/core/generate-stream.test.ts"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.2",
+    "@google/genai": "^1.33.0",
+    "openai": "^6.10.0"
   }
 }

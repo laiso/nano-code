@@ -1,16 +1,7 @@
-export type MCPServersConfig = {
-    mcpServers: Record<string, { 
-        command: string; 
-        args: string[]; 
-        env?: Record<string, string> 
-    }>;
-};
-
-export const defaultConfig: MCPServersConfig = {
-    mcpServers: {
-        filesystem: {
-            command: 'npx',
-            args: ['-y', '@modelcontextprotocol/server-filesystem'],
-        },
-    },
+// src/config.ts
+export let config = {
+    // Layer 2: プロセス隔離（bubblewrap）
+    sandbox: false,
+    // Layer 3: アプリケーション層の設定
+    allowedDomains: ['api.github.com', 'github.com'],
 };

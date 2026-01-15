@@ -1,0 +1,49 @@
+name: Nano Code
+
+on:
+  workflow_dispatch:
+    inputs:
+      task:
+        description: 'エージェントに実行させるタスク'
+        required: false
+        default: 'calculator.ts の関数にテストを追加してください'
+  issues:
+    types: [opened]
+
+permissions: {}
+
+jobs:
+  nano-code:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Bun をセットアップ
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: 依存パッケージをインストール
+        run: bun install
+
+      - name: Git ユーザーを設定
+        run: |
+          git config user.name "nano-code[bot]"
+          git config user.email "nano-code[bot]@users.noreply.github.com"
+
+      - name: Nano Code エージェントを実行
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LLM_PROVIDER: ${{ vars.LLM_PROVIDER }}
+          LLM_MODEL: ${{ vars.LLM_MODEL }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          ISSUE_BODY: ${{ github.event.issue.body || inputs.task }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          GITHUB_REPO_OWNER: ${{ github.repository_owner }}
+          GITHUB_REPO_NAME: ${{ github.event.repository.name }}
+        run: bun run bin/cli.ts --yolo

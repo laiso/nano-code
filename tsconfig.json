@@ -1,17 +1,30 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
-    "module": "esnext",
-    "moduleResolution": "node",
-    "outDir": "./dist",
-    "rootDir": "./src",
+    // Enable latest features
+    "lib": ["ESNext", "DOM"],
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "allowJs": true,
 
+    // Bundler mode
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+
+    // Best practices
     "strict": true,
-    "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "types": ["jest", "node"]
+    "noFallthroughCasesInSwitch": true,
+
+    // Some stricter flags (disabled by default)
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "noUncheckedIndexedAccess": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "bin/**/*.ts", "chapters/**/*.ts", "workspace/**/*.ts", "test-streaming.ts"],
+  "exclude": ["node_modules", "groq-code-cli", "sandbox-runtime", "book"]
 }
