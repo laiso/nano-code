@@ -7,6 +7,11 @@ const ALLOWED_COMMANDS = ['bun', 'ls', 'cat', 'grep', 'find', 'pwd', 'mkdir', 'g
 const MAX_OUTPUT_LENGTH = 2000;
 
 type Quote = '"' | "'" | null;
+type ExecCommandInput = {
+    command?: unknown;
+    commandName?: unknown;
+    commandArgs?: unknown;
+};
 
 // 引用符付き引数をサポートする最小限のコマンドパーサ
 export function parseCommand(input: string): string[] {
@@ -79,18 +84,38 @@ export function parseCommand(input: string): string[] {
 }
 
 async function execCommandExecute(args: Record<string, unknown>): Promise<string> {
-    const command = args.command as string;
-    const dangerousChars = /[;&`$]/;
-    if (dangerousChars.test(command)) {
-        throw new Error('セキュリティ上の理由により、シェルメタ文字を含むコマンドは実行できません');
+    const input = args as ExecCommandInput;
+    let commandName = '';
+    let commandArgs: string[] = [];
+    let commandForCheck = '';
+
+    if (typeof input.command === 'string') {
+        const command = input.command;
+        const dangerousChars = /[;&`$]/;
+        if (dangerousChars.test(command)) {
+            throw new Error('セキュリティ上の理由により、シェルメタ文字を含むコマンドは実行できません');
+        }
+
+        const parts = parseCommand(command);
+        commandName = parts[0] || '';
+        commandArgs = parts.slice(1);
+        commandForCheck = command;
+    } else if (typeof input.commandName === 'string') {
+        commandName = input.commandName;
+        if (Array.isArray(input.commandArgs)) {
+            if (!input.commandArgs.every((arg) => typeof arg === 'string')) {
+                throw new Error('commandArgs は文字列配列で指定してください');
+            }
+            commandArgs = input.commandArgs as string[];
+        }
+        commandForCheck = [commandName, ...commandArgs].join(' ');
+    } else {
+        throw new Error('command または commandName を指定してください');
     }
 
-    const parts = parseCommand(command);
-    const commandName = parts[0];
     if (!commandName) {
         throw new Error('コマンドが空です');
     }
-    const commandArgs = parts.slice(1);
 
     if (!ALLOWED_COMMANDS.includes(commandName)) {
         throw new Error(`コマンド ${commandName} は許可されていません`);
@@ -98,7 +123,7 @@ async function execCommandExecute(args: Record<string, unknown>): Promise<string
 
     const dangerousPatterns = [/rm\s+-rf/, />\s*\/dev/, /curl.*\|.*sh/, /wget.*\|.*sh/];
     for (const pattern of dangerousPatterns) {
-        if (pattern.test(command)) {
+        if (pattern.test(commandForCheck)) {
             throw new Error('危険なコマンドパターンが検出されました');
         }
     }

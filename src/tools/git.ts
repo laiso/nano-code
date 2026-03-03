@@ -1,54 +1,70 @@
+import { existsSync, mkdirSync, unlinkSync, writeFileSync } from 'fs';
+import { join } from 'path';
 import { execCommand } from './execCommand';
+
+const WORKSPACE_ROOT = join(process.cwd(), 'workspace');
+
+function validateBranchName(name: string): void {
+    if (!name || name.length > 120) {
+        throw new Error('ブランチ名が不正です');
+    }
+    if (name.startsWith('-') || name.startsWith(':')) {
+        throw new Error('ブランチ名の先頭に - や : は使えません');
+    }
+    if (/\s/.test(name)) {
+        throw new Error('ブランチ名に空白は使えません');
+    }
+    if (!/^[A-Za-z0-9._/-]+$/.test(name)) {
+        throw new Error('ブランチ名に使用できない文字が含まれています');
+    }
+    if (name.includes('..') || name.includes('//') || name.endsWith('/') || name.endsWith('.')) {
+        throw new Error('ブランチ名形式が不正です');
+    }
+}
+
+function validateFilePath(filePath: string): void {
+    if (!filePath) {
+        throw new Error('ファイルパスが空です');
+    }
+    if (filePath.startsWith('-')) {
+        throw new Error('ファイルパスの先頭に - は使えません');
+    }
+    if (/[\r\n\0]/.test(filePath)) {
+        throw new Error('ファイルパスに不正な制御文字が含まれています');
+    }
+}
+
+function writeTempFile(content: string, prefix: string): string {
+    if (!existsSync(WORKSPACE_ROOT)) {
+        mkdirSync(WORKSPACE_ROOT, { recursive: true });
+    }
+    const tempPath = join(WORKSPACE_ROOT, `.${prefix}-${Date.now()}.txt`);
+    writeFileSync(tempPath, content, 'utf-8');
+    return tempPath;
+}
 
 export const createBranch = {
     name: 'createBranch',
-    description: '新しい Git ブランチを作成する。ローカルまたはリモートに既存のブランチがある場合はタイムスタンプを付与して作成する。',
+    description: '新しい Git ブランチを作成する。既存ブランチがある場合は現在HEADへ強制リセットする。',
     needsApproval: true,
     parameters: {
-        type: "object",
+        type: 'object',
         properties: {
             branchName: {
-                type: "string",
+                type: 'string',
                 description: "作成するブランチ名（例: 'fix/error-handling'）"
             }
         },
-        required: ["branchName"]
+        required: ['branchName']
     },
     execute: async (args: { branchName: string }) => {
-        let branchName = args.branchName;
-        let needsTimestamp = false;
-
-        // ローカルブランチの存在確認
-        try {
-            await execCommand.execute({
-                command: `git rev-parse --verify ${branchName}`
-            });
-            needsTimestamp = true;
-        } catch {
-            // ローカルには存在しない
-        }
-
-        // リモートブランチの存在確認（衝突回避のため）
-        if (!needsTimestamp) {
-            try {
-                await execCommand.execute({
-                    command: `git ls-remote --exit-code --heads origin ${branchName}`
-                });
-                needsTimestamp = true;
-            } catch {
-                // リモートにも存在しない
-            }
-        }
-
-        // 既存ブランチがある場合はタイムスタンプ付きの名前にする
-        if (needsTimestamp) {
-            const timestamp = Date.now();
-            branchName = `${branchName}-${timestamp}`;
-        }
+        const branchName = args.branchName;
+        validateBranchName(branchName);
 
         try {
             const result = await execCommand.execute({
-                command: `git checkout -b ${branchName}`
+                commandName: 'git',
+                commandArgs: ['checkout', '-B', branchName]
             });
             return `ブランチを作成しました: ${branchName}\n${result}`;
         } catch (error) {
@@ -62,46 +78,55 @@ export const commitChanges = {
     description: 'メッセージ付きで変更をコミットする。変更がない場合はコミットしない。',
     needsApproval: true,
     parameters: {
-        type: "object",
+        type: 'object',
         properties: {
             message: {
-                type: "string",
-                description: "コミットメッセージ"
+                type: 'string',
+                description: 'コミットメッセージ'
             },
             files: {
-                type: "array",
+                type: 'array',
                 items: {
-                    type: "string"
+                    type: 'string'
                 },
-                description: "コミットするファイルのパスのリスト"
+                description: 'コミットするファイルのパスのリスト'
             }
         },
-        required: ["message", "files"]
+        required: ['message', 'files']
     },
     execute: async (args: { message: string; files: string[] }) => {
+        if (!args.message || /[\0]/.test(args.message)) {
+            throw new Error('コミットメッセージが不正です');
+        }
+
         try {
-            // 変更があるか確認
             const status = await execCommand.execute({
-                command: 'git status --porcelain'
+                commandName: 'git',
+                commandArgs: ['status', '--porcelain']
             });
 
             if (!status.trim()) {
                 return 'コミットする変更がありません（既に最新の状態です）';
             }
 
-            // ファイルをステージング
             for (const file of args.files) {
-                // ダブルクォートで囲む（parseCommandがクォートを処理する）
+                validateFilePath(file);
                 await execCommand.execute({
-                    command: `git add "${file}"`
+                    commandName: 'git',
+                    commandArgs: ['add', '--', file]
                 });
             }
 
-            // コミット実行
-            const result = await execCommand.execute({
-                command: `git commit -m "${args.message}"`
-            });
-            return `コミットしました: ${args.message}\n${result}`;
+            const messageFile = writeTempFile(args.message, 'commit-message');
+            try {
+                const result = await execCommand.execute({
+                    commandName: 'git',
+                    commandArgs: ['commit', '-F', messageFile]
+                });
+                return `コミットしました: ${args.message}\n${result}`;
+            } finally {
+                try { unlinkSync(messageFile); } catch { /* ignore */ }
+            }
         } catch (error) {
             throw new Error(`コミット失敗: ${error}`);
         }
@@ -113,20 +138,21 @@ export const pushBranch = {
     description: '現在のブランチをリモートリポジトリにプッシュする。新規ブランチの場合は上流を設定する。',
     needsApproval: true,
     parameters: {
-        type: "object",
+        type: 'object',
         properties: {
             branchName: {
-                type: "string",
-                description: "プッシュするブランチ名"
+                type: 'string',
+                description: 'プッシュするブランチ名'
             }
         },
-        required: ["branchName"]
+        required: ['branchName']
     },
     execute: async (args: { branchName: string }) => {
+        validateBranchName(args.branchName);
         try {
-            // -u オプションで上流ブランチを設定（新規ブランチ対応）
             const result = await execCommand.execute({
-                command: `git push -u origin ${args.branchName}`
+                commandName: 'git',
+                commandArgs: ['push', '-u', 'origin', args.branchName]
             });
             return `ブランチをプッシュしました: ${args.branchName}\n${result}`;
         } catch (error) {

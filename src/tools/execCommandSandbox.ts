@@ -16,24 +16,46 @@ const SAFE_ENV = {
     HOME: '/tmp',
     LANG: process.env.LANG || 'C.UTF-8',
 };
+type ExecCommandInput = {
+    command?: unknown;
+    commandName?: unknown;
+    commandArgs?: unknown;
+};
 
 async function execCommandSandboxExecute(
     args: Record<string, unknown>
 ): Promise<string> {
-    const command = args.command as string;
+    const input = args as ExecCommandInput;
+    let commandName = '';
+    let commandArgs: string[] = [];
+    let commandForCheck = '';
 
-    // 第4章の検証ロジック
-    const dangerousChars = /[;&`$]/;
-    if (dangerousChars.test(command)) {
-        throw new Error('シェルメタ文字を含むコマンドは実行できません');
+    if (typeof input.command === 'string') {
+        const command = input.command;
+        const dangerousChars = /[;&`$]/;
+        if (dangerousChars.test(command)) {
+            throw new Error('シェルメタ文字を含むコマンドは実行できません');
+        }
+        const parts = parseCommand(command);
+        commandName = parts[0] || '';
+        commandArgs = parts.slice(1);
+        commandForCheck = command;
+    } else if (typeof input.commandName === 'string') {
+        commandName = input.commandName;
+        if (Array.isArray(input.commandArgs)) {
+            if (!input.commandArgs.every((arg) => typeof arg === 'string')) {
+                throw new Error('commandArgs は文字列配列で指定してください');
+            }
+            commandArgs = input.commandArgs as string[];
+        }
+        commandForCheck = [commandName, ...commandArgs].join(' ');
+    } else {
+        throw new Error('command または commandName を指定してください');
     }
 
-    const parts = parseCommand(command);
-    const commandName = parts[0];
     if (!commandName) {
         throw new Error('コマンドが空です');
     }
-    const commandArgs = parts.slice(1);
 
     if (!ALLOWED_COMMANDS.includes(commandName)) {
         throw new Error(`コマンド ${commandName} は許可されていません`);
@@ -41,7 +63,7 @@ async function execCommandSandboxExecute(
 
     const dangerousPatterns = [/rm\s+-rf/, />\s*\/dev/, /curl.*\|.*sh/, /wget.*\|.*sh/];
     for (const pattern of dangerousPatterns) {
-        if (pattern.test(command)) {
+        if (pattern.test(commandForCheck)) {
             throw new Error('危険なコマンドパターンが検出されました');
         }
     }
