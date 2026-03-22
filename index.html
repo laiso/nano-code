@@ -115,9 +115,15 @@
         <section>
           <h2>補足情報</h2>
           <ul class="chapters">
-            <li><span class="chapter">7.4節</span>：補足情報 1</li>
-            <li><span class="chapter">7.7節</span>：補足情報 2</li>
-            <li><span class="chapter">7.2節</span>：補足情報 3</li>
+            <li>
+              <span class="chapter">7.4節</span>：GitHub ActionsからPRを作成するには、ワークフロー権限（pull-requests: write）に加えて、リポジトリ設定で「Allow GitHub Actions to create and approve pull requests」を有効にする必要があります。設定が不足していると、ワークフロー実行時に「GitHub Actions is not permitted to create or approve pull requests」というエラーが発生します。対処するには、リポジトリの Settings → Actions → General → Workflow permissions を開き、該当項目にチェックを入れて Save してください。
+            </li>
+            <li>
+              <span class="chapter">7.7節</span>：Issue本文をCI向けプロンプトに埋め込む実装が必要です。ワークフローのYAMLで ISSUE_TEXT 環境変数に Issue 本文を渡していても、bin/cli.ts の issueDrivenInstructions がその内容を参照しなければ、エージェントは本文を読み取れません。症状としては、Issue トリガーで実行してもタイトルしか認識されず、詳細な指示に従えない状態になります。対処法として、issueDrivenInstructions のテンプレートリテラル内に process.env.ISSUE_TEXT を読み込んで「## Issue本文（参照用）」として埋め込んでください。例: const issueText = process.env.ISSUE_TEXT || ""; を用意し、${issueText} を挿入します。
+            </li>
+            <li>
+              <span class="chapter">7.2節</span>：Variables の設定漏れに注意してください。LLM_PROVIDER と LLM_MODEL は Secrets の LLM_API_KEY とは別に Variables として登録する必要があります。未登録の場合、ワークフローのログではこれらの値が空になり、bin/cli.ts 起動時に「LLM設定が不足しています」というエラーで終了します。対処法は、gh variable set LLM_PROVIDER --body "openai" と gh variable set LLM_MODEL --body "gpt-4o-mini" を実行し、gh variable list で登録状況を確認することです。
+            </li>
           </ul>
         </section>
       </div>
