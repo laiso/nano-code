@@ -111,10 +111,14 @@ async function main() {
 
     const localInstructions = baseInstructions;
 
+    const issueText = process.env.ISSUE_TEXT || '';
     const issueDrivenInstructions = `${baseInstructions}
 
 ## CI向け追加指示
 あなたは GitHub Actions で実行される TypeScript コーディングエージェントです。Issue番号は ${process.env.ISSUE_NUMBER || '(なし)'} です（「(なし)」ならコメントは不要）。
+
+## Issue本文（参照用）
+${issueText}
 
 - 作業を始める前に、必ずTODOリストを作成する。
 - 次の順番で作業する: Issue理解 → ファイル読込 → 修正 → テスト → Gitコミット/プッシュ → PR作成 → Issueへ結果コメント。

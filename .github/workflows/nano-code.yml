@@ -46,7 +46,7 @@ jobs:
           LLM_PROVIDER: ${{ vars.LLM_PROVIDER }}
           LLM_MODEL: ${{ vars.LLM_MODEL }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
-          ISSUE_BODY: ${{ github.event_name == 'workflow_dispatch' && inputs.task || github.event.issue.title }}
+          ISSUE_BODY: ${{ inputs.task }}
           ISSUE_TEXT: ${{ github.event.issue.body }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           GITHUB_REPO_OWNER: ${{ github.repository_owner }}
