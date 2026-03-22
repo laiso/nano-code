@@ -85,6 +85,9 @@ async function main() {
     }
     
     console.log(`Workspace: ${WORKSPACE_ROOT}`);
+    if (isIssueDriven) {
+        console.log('[モード] Issue駆動モード (CI)');
+    }
     if (yoloMode) {
         console.log('[モード] 自動承認モード (--yolo)');
     }
