@@ -90,23 +90,10 @@
 
         <section>
           <h2>補足情報</h2>
-          <ul>
-            <li>
-              <strong>補足1:</strong> GitHub Actions から PR を作成するには、リポジトリの
-              Settings → Actions → General → Workflow permissions で
-              「Allow GitHub Actions to create and approve pull requests」を有効にしてください。
-            </li>
-            <li>
-              <strong>補足2:</strong> bin/cli.ts の CI 向けプロンプトでは、ISSUE_TEXT を
-              issueDrivenInstructions に埋め込む実装が必要です。環境変数として渡すだけでなく、
-              ISSUE_TEXT の内容をプロンプトに反映してください。
-            </li>
-            <li>
-              <strong>補足3:</strong> LLM_PROVIDER と LLM_MODEL は GitHub Actions の Variables に
-              登録が必要です。gh variable set で設定していない場合、ワークフロー実行時に空になり
-              エラーになる可能性があります。
-            </li>
-          </ul>
+          <p>
+            今後の更新に合わせて、使い方のコツ、設定例、FAQ などを追加していく想定です。
+            詳細情報の掲載先としてご利用ください。
+          </p>
         </section>
       </div>
     </main>
