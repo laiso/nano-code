@@ -52,10 +52,3 @@ jobs:
           GITHUB_REPO_OWNER: ${{ github.repository_owner }}
           GITHUB_REPO_NAME: ${{ github.event.repository.name }}
         run: bun run bin/cli.ts --yolo
-
-      - name: GitHub Pages にデプロイ
-        if: hashFiles('workspace/docs/**') != ''
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: workspace/docs

@@ -1,0 +1,22 @@
+name: Deploy Pages
+
+on:
+  push:
+    branches: [main]
+    paths: ['workspace/docs/**']
+
+permissions: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: GitHub Pages にデプロイ
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: workspace/docs
