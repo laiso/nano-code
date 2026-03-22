@@ -46,7 +46,7 @@ async function main() {
     // 2. なければ環境変数 ISSUE_BODY（手動入力）を使用
     // 3. なければ ISSUE_TEXT（Issue本文）があればIssue駆動モード
     let userPrompt = positionals.join(' ');
-    const isIssueDriven = !userPrompt && (!process.env.ISSUE_BODY) && !!process.env.ISSUE_TEXT;
+    const isIssueDriven = !userPrompt && !!(process.env.ISSUE_BODY || process.env.ISSUE_TEXT);
 
     if (!userPrompt) {
         userPrompt = process.env.ISSUE_BODY || process.env.ISSUE_TEXT || '';
