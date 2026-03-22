@@ -43,12 +43,13 @@ async function main() {
 
     // --- 入力の取得 ---
     // 1. CLI引数を優先
-    // 2. なければ環境変数 ISSUE_BODY を使用
+    // 2. なければ環境変数 ISSUE_BODY（手動入力）を使用
+    // 3. なければ ISSUE_TEXT（Issue本文）があればIssue駆動モード
     let userPrompt = positionals.join(' ');
-    const isIssueDriven = !userPrompt && !!process.env.ISSUE_BODY;
+    const isIssueDriven = !userPrompt && (!process.env.ISSUE_BODY) && !!process.env.ISSUE_TEXT;
 
     if (!userPrompt) {
-        userPrompt = process.env.ISSUE_BODY || '';
+        userPrompt = process.env.ISSUE_BODY || process.env.ISSUE_TEXT || '';
     }
 
     if (!userPrompt) {
