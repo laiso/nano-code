@@ -251,10 +251,6 @@
         <aside class="toc">
           <h2>補足情報</h2>
           <nav>
-            <h3>第 2 章</h3>
-            <ul>
-              <li><a href="#ch02-env-gemini">環境変数 GEMINI_API_KEY</a></li>
-            </ul>
             <h3>第 3 章</h3>
             <ul>
               <li><a href="#ch03-3-llm-api-error">3.3 節 LLMApiError のコンストラクタ引数</a></li>
@@ -266,44 +262,13 @@
             <h3>第 7 章</h3>
             <ul>
               <li><a href="#ch07-2-variables">7.2 節 Variables の設定</a></li>
-              <li><a href="#ch07-4-pr-permission">7.4 節 PR 作成の権限設定</a></li>
+              <li><a href="#ch07-4-pr-permission">7.4 節 PR 作成に必要なリポジトリ設定</a></li>
               <li><a href="#ch07-7-issue-text">7.7 節 ISSUE_TEXT の埋め込み</a></li>
-            </ul>
-            <h3>第 8 章</h3>
-            <ul>
-              <li><a href="#ch08-3-bubblewrap-sys-admin">8.3 節 bubblewrap と SYS_ADMIN 権限</a></li>
             </ul>
           </nav>
         </aside>
 
         <div>
-          <section class="chapter-group">
-            <h2>第 2 章</h2>
-
-            <article id="ch02-env-gemini">
-              <header>
-                <span class="chapter-label">第 2 章</span>
-                <h3>環境変数 GEMINI_API_KEY</h3>
-                <a class="anchor" href="#ch02-env-gemini">#</a>
-              </header>
-              <dl>
-                <dt>本書の記載</dt>
-                <dd>
-                  <p>第 2 章の <code>.env</code> 例に <code>GOOGLE_API_KEY=AI...</code> が記載されています。第 6 章の <code>createModelFromEnv</code> の実装でも <code>process.env.GOOGLE_API_KEY</code> を参照する形で説明されています。</p>
-                </dd>
-                <dt>症状</dt>
-                <dd>
-                  <p><code>@google/genai</code> SDK が参照する標準の環境変数名は <code>GEMINI_API_KEY</code> です。<code>GOOGLE_API_KEY</code> だけを設定した場合、SDK からは空と判定されます。</p>
-                </dd>
-                <dt>対処</dt>
-                <dd>
-                  <p><code>.env</code> には <code>GEMINI_API_KEY</code> を設定します。本リポジトリの <code>src/providers/google.ts</code> は <code>GEMINI_API_KEY ?? GOOGLE_API_KEY</code> のフォールバックを備えているため両方の環境変数名を受け付けますが、新規設定では <code>GEMINI_API_KEY</code> を使用してください。</p>
-                  <pre><code>GEMINI_API_KEY=AI...</code></pre>
-                </dd>
-              </dl>
-            </article>
-          </section>
-
           <section class="chapter-group">
             <h2>第 3 章</h2>
 
@@ -389,22 +354,22 @@ gh variable set LLM_MODEL --body "gpt-5-mini"</code></pre>
             <article id="ch07-4-pr-permission">
               <header>
                 <span class="chapter-label">7.4 節</span>
-                <h3>PR 作成の権限設定</h3>
+                <h3>PR 作成に必要なリポジトリ設定</h3>
                 <a class="anchor" href="#ch07-4-pr-permission">#</a>
               </header>
               <dl>
                 <dt>本書の記載</dt>
                 <dd>
-                  <p>7.4 節でワークフロー権限 <code>pull-requests: write</code> の設定手順が記載されています。</p>
+                  <p>第 7 章 7.4 節に「プルリクエストの作成には、7.2 節で設定したワークフロー権限（<code>pull-requests: write</code>）とリポジトリ設定（プルリクエスト作成の許可）の両方が必要です」と記載されています。具体的なリポジトリ設定の手順は本文に含まれていません。</p>
                 </dd>
                 <dt>症状</dt>
                 <dd>
-                  <p>ワークフロー権限だけではプルリクエストを作成できず、実行時に次のエラーで失敗します。</p>
+                  <p>ワークフロー権限のみを設定した状態では、プルリクエストを作成できず、実行時に次のエラーで失敗します。</p>
                   <pre><code>GitHub Actions is not permitted to create or approve pull requests</code></pre>
                 </dd>
                 <dt>対処</dt>
                 <dd>
-                  <p>リポジトリの Settings → Actions → General → Workflow permissions を開き、「Allow GitHub Actions to create and approve pull requests」にチェックを入れて Save してください。ワークフロー権限の設定と併用することで、プルリクエストの作成が許可されます。</p>
+                  <p>リポジトリの Settings → Actions → General → Workflow permissions を開き、「Allow GitHub Actions to create and approve pull requests」にチェックを入れて Save してください。7.2 節で設定したワークフロー権限と併用することで、プルリクエストの作成が許可されます。</p>
                 </dd>
               </dl>
             </article>
@@ -438,31 +403,6 @@ ${issueText}
             </article>
           </section>
 
-          <section class="chapter-group">
-            <h2>第 8 章</h2>
-
-            <article id="ch08-3-bubblewrap-sys-admin">
-              <header>
-                <span class="chapter-label">8.3 節</span>
-                <h3>bubblewrap と SYS_ADMIN 権限</h3>
-                <a class="anchor" href="#ch08-3-bubblewrap-sys-admin">#</a>
-              </header>
-              <dl>
-                <dt>本書の記載</dt>
-                <dd>
-                  <p>bubblewrap の実行に <code>--cap-add=SYS_ADMIN</code> が必要と記載されています。</p>
-                </dd>
-                <dt>症状</dt>
-                <dd>
-                  <p>全ての環境でこのオプションが必須とは限りません。</p>
-                </dd>
-                <dt>対処</dt>
-                <dd>
-                  <p>ホストのカーネル設定 <code>kernel.unprivileged_userns_clone=1</code> が有効な環境では、<code>--cap-add=SYS_ADMIN</code> なしで bubblewrap を起動できる場合があります。実行環境のカーネル設定を確認のうえ、必要に応じてオプションを付与してください。</p>
-                </dd>
-              </dl>
-            </article>
-          </section>
         </div>
       </div>
 
