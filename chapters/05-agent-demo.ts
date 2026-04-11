@@ -7,7 +7,7 @@ async function main() {
     const model = openai('gpt-5-mini');
 
     console.log('--- エージェントデモ開始 ---\n');
-    console.log('タスク: workspace/greeting.txtを作成し、"Hello, World!"を書き込んでから内容を読み出す。');
+    console.log('タスク: greeting.txtを作成し、"Hello, World!"を書き込んでから内容を読み出す。');
 
     await new Agent({
         name: 'nano-code',
@@ -21,7 +21,7 @@ async function main() {
 - 実行した手順: 利用したツール名と目的
 - エラー: 発生していれば概要、なければ「なし」
 
-ツールを呼び出すときはワークスペース内のパスを使います。`,
+ツールに渡すパスはワークスペースルートからの相対パスです（workspace/ プレフィックスは不要）。`,
         tools: {
             readFile,
             writeFile,
@@ -30,7 +30,7 @@ async function main() {
         maxSteps: 8,
         verbose: true
     }).generate(
-        'workspace/greeting.txt を作成し、中身を "Hello, World!" にしてから内容を読み出して報告してください。ファイルの保存にはwriteFileツールを使ってください。'
+        'greeting.txt を作成し、中身を "Hello, World!" にしてから内容を読み出して報告してください。ファイルの保存にはwriteFileツールを使ってください。'
     );
 
     console.log('\n--- エージェントデモ終了 ---');
