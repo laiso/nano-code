@@ -1,7 +1,8 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { config } from '../config';
 
-const WORKSPACE_ROOT = path.resolve(process.cwd(), './workspace');
+const WORKSPACE_ROOT = config.workspaceRoot;
 const MAX_FILE_SIZE = 100 * 1024; // 100KB
 
 async function readFileExecute(args: { path: string }): Promise<string> {

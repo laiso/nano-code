@@ -6,7 +6,7 @@ import { Sandbox } from '../core/sandbox';
 import { config } from '../config';
 import { parseCommand } from './execCommand';
 
-const WORKSPACE_ROOT = path.resolve(process.cwd(), './workspace');
+const WORKSPACE_ROOT = config.workspaceRoot;
 const ALLOWED_COMMANDS = ['bun', 'ls', 'git', 'gh'];
 const MAX_OUTPUT_LENGTH = 2000;
 

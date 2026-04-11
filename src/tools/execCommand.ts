@@ -1,8 +1,9 @@
 import { spawn } from 'child_process';
 import * as path from 'path';
 import type { Tool } from '../types';
+import { config } from '../config';
 
-const WORKSPACE_ROOT = path.resolve(process.cwd(), './workspace');
+const WORKSPACE_ROOT = config.workspaceRoot;
 const ALLOWED_COMMANDS = ['bun', 'ls', 'cat', 'grep', 'find', 'pwd', 'mkdir', 'git', 'gh'];
 const MAX_OUTPUT_LENGTH = 2000;
 

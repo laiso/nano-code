@@ -1,7 +1,8 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { config } from '../config';
 
-const WORKSPACE_ROOT = path.resolve(process.cwd(), './workspace');
+const WORKSPACE_ROOT = config.workspaceRoot;
 
 async function editFileExecute(args: {
     path: string;

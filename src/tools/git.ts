@@ -1,8 +1,9 @@
 import { existsSync, mkdirSync, unlinkSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { execCommand } from './execCommand';
+import { config } from '../config';
 
-const WORKSPACE_ROOT = join(process.cwd(), 'workspace');
+const WORKSPACE_ROOT = config.workspaceRoot;
 
 function validateBranchName(name: string): void {
     if (!name || name.length > 120) {

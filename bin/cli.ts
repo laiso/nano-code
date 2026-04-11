@@ -5,8 +5,6 @@ import { createModelFromEnv } from '../src/providers/modelFactory';
 import { readFile, writeFile, editFile, execCommand } from '../src/tools';
 import { createBranch, commitChanges, pushBranch } from '../src/tools/git';
 import { createPullRequest, createIssueComment } from '../src/tools/github';
-import { mkdirSync, existsSync } from 'fs';
-import { join } from 'path';
 import { config } from '../src/config';
 
 // 機密情報をマスクする（ログ出力用）
@@ -16,7 +14,7 @@ function maskSecret(value: string | undefined): string {
     return value.slice(0, 4) + '***' + value.slice(-4);
 }
 
-const WORKSPACE_ROOT = join(process.cwd(), 'workspace');
+const WORKSPACE_ROOT = config.workspaceRoot;
 
 async function main() {
     const { values, positionals } = parseArgs({
@@ -60,11 +58,6 @@ async function main() {
     }
 
     // --- 環境設定 ---
-    
-    // ワークスペースディレクトリを作成
-    if (!existsSync(WORKSPACE_ROOT)) {
-        mkdirSync(WORKSPACE_ROOT, { recursive: true });
-    }
 
     const provider = process.env.LLM_PROVIDER;
     const modelName = process.env.LLM_MODEL;
