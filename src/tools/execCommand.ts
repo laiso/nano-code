@@ -193,7 +193,7 @@ async function execCommandExecute(args: Record<string, unknown>): Promise<string
 export const execCommand: Tool = {
     name: 'execCommand',
     description:
-        'ワークスペース内で許可された汎用コマンドを実行する。利用可能：bun test、ls、cat、grep、find、pwd、mkdir。',
+        'ワークスペース内で許可された汎用コマンドを実行する。利用可能：bun、ls、cat、grep、find、pwd、mkdir、git、gh。',
     needsApproval: true,
     parameters: {
         type: 'object',
