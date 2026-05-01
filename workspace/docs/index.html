@@ -350,8 +350,7 @@ gh variable set LLM_MODEL --body "gpt-5-mini"</code></pre>
                 </dd>
                 <dt>補足</dt>
                 <dd>
-                  <p><code>gpt-5-nano</code> は安価ですが、本書で紹介している Issue 駆動ワークフロー（コード修正→ブランチ作成→コミット→プッシュ→PR 作成→Issue へのコメント）を <code>maxSteps=20</code> の上限内で完走できないことを実機で確認しています。そのため、少なくとも <code>gpt-5-mini</code> 以上のモデルを推奨します。</p>
-                  <p>検証ログ: Actions run 25213180942（<code>gpt-5-nano</code>, 未完走） / run 25213291142（<code>gpt-5-mini</code>, 完走）</p>
+                  <p><code>gpt-5-nano</code> は安価ですが、本書で紹介している Issue 駆動ワークフロー（コード修正→ブランチ作成→コミット→プッシュ→PR 作成→Issue へのコメント）を <code>maxSteps=20</code> の上限内で完走できないことを GitHub Actions での実行で確認しています。そのため、少なくとも <code>gpt-5-mini</code> 以上のモデルを推奨します。</p>
                 </dd>
               </dl>
             </article>

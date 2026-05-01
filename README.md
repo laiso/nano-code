@@ -1,6 +1,6 @@
 # Nano Code
 
-![書影](workspace/docs/images/cover.jpg)
+<img src="workspace/docs/images/cover.jpg" alt="書影" width="240">
 
 書籍「作って学ぶ AIエージェント ── TypeScriptとLLMで切り拓くAI時代のエンジニアリング」（laiso 著、技術評論社刊）のサンプルコードリポジトリです。
 
