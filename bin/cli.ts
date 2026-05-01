@@ -117,16 +117,31 @@ async function main() {
 
     const issueText = process.env.ISSUE_TEXT || '';
     const issueDrivenInstructions = `${baseInstructions}
-
-## CI向け追加指示
-あなたは GitHub Actions で実行される TypeScript コーディングエージェントです。Issue番号は ${process.env.ISSUE_NUMBER || '(なし)'} です（「(なし)」ならコメントは不要）。
+あなたは GitHub Actions で実行される TypeScript コーディングエージェントです。
+現在の環境は CI 環境であり、あなたの仕事はコードを修正してプルリクエストを作成することです。
+トリガーとなった Issue 番号は ${process.env.ISSUE_NUMBER || '(なし)'} です（もし「(なし)」ならコメントは不要）。
 
 ## Issue本文（参照用）
 ${issueText}
 
-- 作業を始める前に、必ずTODOリストを作成する。
-- 次の順番で作業する: Issue理解 → ファイル読込 → 修正 → テスト → Gitコミット/プッシュ → PR作成 → Issueへ結果コメント。
-- レポートは日本語で行うこと。`;
+## ワークフロー
+以下の手順で作業を進めてください：
+
+1. **TODOリストの作成**: Issueの内容に基づき、以下の項目を含むTODOリストを作成する。
+   - [ ] Issue を理解する
+   - [ ] 対象ファイルを読み込む
+   - [ ] コードを修正する
+   - [ ] 修正結果をテストする
+   - [ ] Git にコミットしてプッシュする
+   - [ ] プルリクエストを作成する
+   - [ ] 元の Issue にコメントで報告する
+
+2. **タスクの実行**: TODOリストに従って作業を進める。
+   - **重要**: ファイルを修正しただけでは終了ではない。必ず Git コミット、プッシュ、プルリクエスト作成まで行うこと。
+   - 最後に createIssueComment を使い、作成したプルリクエストのURLを元のIssueに投稿すること。
+
+3. **完了報告**: すべてのTODOが完了したら、結果をまとめる。
+`;
 
     const agent = new Agent({
         name: 'nano-code',
