@@ -251,6 +251,10 @@
         <aside class="toc">
           <h2>補足情報</h2>
           <nav>
+            <h3>第 2 章</h3>
+            <ul>
+              <li><a href="#ch02-7-env-key-name">2.7 節 Google 系 API キーの環境変数名</a></li>
+            </ul>
             <h3>第 3 章</h3>
             <ul>
               <li><a href="#ch03-3-llm-api-error">3.3 節 LLMApiError のコンストラクタ引数</a></li>
@@ -262,6 +266,7 @@
             <h3>第 6 章</h3>
             <ul>
               <li><a href="#ch06-4-create-model-from-env">6.4 節 createModelFromEnv の実装差異</a></li>
+              <li><a href="#ch06-7-max-steps-tuning">6.7 節 maxSteps の値が章間で異なる点</a></li>
             </ul>
             <h3>第 7 章</h3>
             <ul>
@@ -278,32 +283,40 @@
 
         <div>
           <section class="chapter-group">
-            <h2>第 3 章</h2>
+  <h2>第 2 章</h2>
 
-            <article id="ch03-3-llm-api-error">
-              <header>
-                <span class="chapter-label">3.3 節</span>
-                <h3>LLMApiError のコンストラクタ引数</h3>
-                <a class="anchor" href="#ch03-3-llm-api-error">#</a>
-              </header>
-              <dl>
-                <dt>本書の記載</dt>
-                <dd>
-                  <p>OpenAI プロバイダーの例で次の呼び出しが記載されています。</p>
-                  <pre><code>throw new LLMApiError('APIからの応答がありません');</code></pre>
-                </dd>
-                <dt>症状</dt>
-                <dd>
-                  <p><code>LLMApiError</code> クラスの定義では第 1 引数が <code>status: number</code>、第 2 引数が <code>provider: string</code> で、文字列 1 つだけを渡す呼び出しは型エラーになります。</p>
-                </dd>
-                <dt>対処</dt>
-                <dd>
-                  <p>多引数形式で呼び出します。</p>
-                  <pre><code>throw new LLMApiError(500, 'openai', undefined, 'APIからの応答がありません');</code></pre>
-                </dd>
-              </dl>
-            </article>
-          </section>
+  <article id="ch02-7-env-key-name">
+    <header>
+      <span class="chapter-label">2.7 節</span>
+      <h3>Google 系 API キーの環境変数名</h3>
+      <a class="anchor" href="#ch02-7-env-key-name">#</a>
+    </header>
+    <dl>
+      <dt>本書の記載</dt>
+      <dd>
+        <p>本書 2.7 節「API キーの設定」の <code>.env</code> 記載例では、Google の API キーを次のように記載しています。</p>
+        <pre><code>OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+GOOGLE_API_KEY=AI...</code></pre>
+        <p>同様に第 6 章の <code>createModelFromEnv</code> のコード例でも <code>process.env.GOOGLE_API_KEY</code> が使われています。一方、第 3 章のプロバイダー実装と表では <code>GEMINI_API_KEY</code> が登場しており、本書内で表記が混在しています。</p>
+      </dd>
+      <dt>症状</dt>
+      <dd>
+        <p>配布リポジトリの <code>.env.example</code> は <code>GEMINI_API_KEY</code> を採用しています。</p>
+        <pre><code>OPENAI_API_KEY=sk-proj-...
+GEMINI_API_KEY=AI...
+ANTHROPIC_API_KEY=sk-ant-...</code></pre>
+        <p>このため、配布リポジトリ実体に合わせて <code>.env</code> を作成する場合と、本書 2.7 節の例どおりに作成した場合で、環境変数名が異なる状態になります。</p>
+      </dd>
+      <dt>対処</dt>
+      <dd>
+        <p>配布リポジトリの <code>src/providers/google.ts</code> は <code>GEMINI_API_KEY</code> を優先しつつ <code>GOOGLE_API_KEY</code> もフォールバックとして参照する実装になっているため、どちらの環境変数名を設定しても動作します。配布リポジトリと一致させたい場合は <code>GEMINI_API_KEY</code> を使用してください。</p>
+        <pre><code>const apiKey =
+    config.apiKey ?? process.env.GEMINI_API_KEY ?? process.env.GOOGLE_API_KEY;</code></pre>
+      </dd>
+    </dl>
+  </article>
+</section>
 
           <section class="chapter-group">
             <h2>第 4 章</h2>
@@ -392,7 +405,39 @@
       </dd>
     </dl>
   </article>
-</section>
+
+          <article id="ch06-7-max-steps-tuning">
+  <header>
+    <span class="chapter-label">6.7 節</span>
+    <h3><code>maxSteps</code> の値が章間で異なる点</h3>
+    <a class="anchor" href="#ch06-7-max-steps-tuning">#</a>
+  </header>
+  <dl>
+    <dt>本書の記載</dt>
+    <dd>
+      <p>本書 6.7 節「<code>maxSteps</code> のチューニング」では、<code>maxSteps: 15</code> を推奨値として紹介しています。</p>
+      <pre><code>const agent = new Agent({
+    // ...
+    maxSteps: 15,
+});</code></pre>
+      <p>一方、第 7 章 7.2 節「自動承認モード（--yolo）の実装」で <code>cli.ts</code> を書き直す際には <code>maxSteps: 20</code> に変更されています。</p>
+      <pre><code>const agent = new Agent({
+    // ...
+    maxSteps: 20,
+});</code></pre>
+    </dd>
+    <dt>症状</dt>
+    <dd>
+      <p>本書を 6 章までで止めて使うぶんには <code>maxSteps: 15</code> で問題ありませんが、第 7 章で組む Issue 駆動ワークフロー（コード修正→ブランチ作成→コミット→プッシュ→PR 作成→Issue へのコメント）は実行ステップ数が多く、<code>maxSteps: 15</code> のままだと完走前にステップ上限に達して打ち切られることがあります。配布リポジトリの <code>bin/cli.ts</code> も <code>maxSteps: 20</code> を採用しています。</p>
+    </dd>
+    <dt>対処</dt>
+    <dd>
+      <p>第 7 章に進む際は、本書 7.2 節のとおり <code>maxSteps: 20</code> に引き上げてください。本書 7.2 節のコード例自体に <code>maxSteps: 20</code> が含まれているため、章順に写経している読者は自然と引き上げられますが、第 6 章のコードを部分的に再利用する場合は明示的に変更が必要です。</p>
+      <p>なお、より複雑なタスクで <code>maxSteps</code> に到達して打ち切られる場合は、20 をさらに大きな値（25〜30 など）に上げる前に、システムプロンプトの見直しやタスクの分割を先に検討してください。</p>
+    </dd>
+  </dl>
+</article>
+
 
           <section class="chapter-group">
             <h2>第 7 章</h2>
