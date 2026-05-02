@@ -23,7 +23,7 @@
 2. 環境変数ファイルを作成して編集します。
 
    ```bash
-   cp .env.example .env
+   cp .env.sample .env
    ```
 
 3. `.env` に以下の値を設定します。
