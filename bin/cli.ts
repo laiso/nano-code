@@ -3,7 +3,7 @@ import { Agent } from '../src/core/agent';
 import { loadInstructions } from '../src/core/prompt';
 import { createModelFromEnv } from '../src/providers/modelFactory';
 import { readFile, writeFile, editFile, execCommand } from '../src/tools';
-import { createBranch, commitChanges, pushBranch } from '../src/tools/git';
+import { createBranch, commit, pushBranch } from '../src/tools/git';
 import { createPullRequest, createIssueComment } from '../src/tools/github';
 import { mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
@@ -153,7 +153,7 @@ ${issueText}
             editFile,
             execCommand,
             createBranch,
-            commitChanges,
+            commit,
             pushBranch,
             createPullRequest,
             createIssueComment,

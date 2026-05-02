@@ -20,7 +20,7 @@ const mockCreateBranchTool = {
 };
 
 const mockCommitTool = {
-    name: 'commitChanges',
+    name: 'commit',
     description: 'メッセージ付きで変更をコミットする。変更がない場合はコミットしない。',
     needsApproval: true,
     parameters: {
@@ -32,7 +32,7 @@ const mockCommitTool = {
         required: ["message", "files"]
     },
     execute: async (args: any) => {
-        console.log(`[Mock] commitChanges called with: ${JSON.stringify(args)}`);
+        console.log(`[Mock] commit called with: ${JSON.stringify(args)}`);
         return `コミットしました: ${args.message}`;
     }
 };

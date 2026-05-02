@@ -73,8 +73,8 @@ export const createBranch = {
     }
 };
 
-export const commitChanges = {
-    name: 'commitChanges',
+export const commit = {
+    name: 'commit',
     description: 'メッセージ付きで変更をコミットする。変更がない場合はコミットしない。',
     needsApproval: true,
     parameters: {
