@@ -269,6 +269,10 @@
               <li><a href="#ch07-4-pr-permission">7.4 節 PR 作成に必要なリポジトリ設定</a></li>
               <li><a href="#ch07-7-issue-text">7.7 節 ISSUE_TEXT の埋め込み</a></li>
             </ul>
+            <h3>第 8 章</h3>
+            <ul>
+              <li><a href="#ch08-5-sandbox-cli-command">8.5 節 サンドボックス動作確認コマンドのファイルパス</a></li>
+            </ul>
           </nav>
         </aside>
 
@@ -472,6 +476,36 @@ ${issueText}
               </dl>
             </article>
           </section>
+
+          <section class="chapter-group">
+            <h2>第 8 章</h2>
+
+  <article id="ch08-5-sandbox-cli-command">
+    <header>
+      <span class="chapter-label">8.5 節</span>
+      <h3>サンドボックス動作確認コマンドのファイルパス</h3>
+      <a class="anchor" href="#ch08-5-sandbox-cli-command">#</a>
+    </header>
+    <dl>
+      <dt>本書の記載</dt>
+      <dd>
+        <p>サンドボックス動作確認の手順で、コンテナ内で nano-code-cli を起動するコマンド例として次のように記載されています。</p>
+        <pre><code>$ bun run src/index.ts --sandbox "README.mdの内容を要約してください"</code></pre>
+      </dd>
+      <dt>症状</dt>
+      <dd>
+        <p>配布リポジトリに <code>src/index.ts</code> は存在しません。CLI のエントリポイントは <code>bin/cli.ts</code> です。本書のコマンドをそのまま実行すると、Bun がモジュールを解決できず次のエラーで即終了します。</p>
+        <pre><code>error: Module not found "src/index.ts"</code></pre>
+      </dd>
+      <dt>対処</dt>
+      <dd>
+        <p>エントリポイントを <code>bin/cli.ts</code> に置き換えてください。</p>
+        <pre><code>$ bun run bin/cli.ts --sandbox "README.mdの内容を要約してください"</code></pre>
+        <p>本書の同章内の他箇所（コマンド実行ツールの実装手前）では <code>bun run bin/cli.ts ...</code> と正しく記載されているため、表記を合わせる形になります。</p>
+      </dd>
+    </dl>
+  </article>
+</section>
 
         </div>
       </div>
