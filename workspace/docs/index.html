@@ -259,6 +259,10 @@
             <ul>
               <li><a href="#ch04-6-tools-demo-filename">4.6 節 ツール動作確認スクリプトのファイル名</a></li>
             </ul>
+            <h3>第 6 章</h3>
+            <ul>
+              <li><a href="#ch06-4-create-model-from-env">6.4 節 createModelFromEnv の実装差異</a></li>
+            </ul>
             <h3>第 7 章</h3>
             <ul>
               <li><a href="#ch07-2-variables">7.2 節 Variables の設定</a></li>
@@ -323,6 +327,68 @@
               </dl>
             </article>
           </section>
+
+          <section class="chapter-group">
+  <h2>第 6 章</h2>
+
+  <article id="ch06-4-create-model-from-env">
+    <header>
+      <span class="chapter-label">6.4 節</span>
+      <h3><code>createModelFromEnv</code> と配布リポジトリ実装の差異</h3>
+      <a class="anchor" href="#ch06-4-create-model-from-env">#</a>
+    </header>
+    <dl>
+      <dt>本書の記載</dt>
+      <dd>
+        <p>本書では <code>createModelFromEnv</code> を次の形で実装しています（抜粋）。</p>
+        <pre><code>export function createModelFromEnv(): LanguageModel {
+  const provider = process.env.LLM_PROVIDER;
+  const modelName = process.env.LLM_MODEL;
+  const apiKey = process.env.LLM_API_KEY;
+  if (!provider) throw new Error('LLM_PROVIDER 環境変数が設定されていません');
+  if (!modelName) throw new Error('LLM_MODEL 環境変数が設定されていません');
+  switch (provider.toLowerCase()) {
+    case 'openai': {
+      if (apiKey &amp;&amp; !process.env.OPENAI_API_KEY) {
+        process.env.OPENAI_API_KEY = apiKey;
+      }
+      const openai = createOpenAI();
+      return openai(modelName);
+    }
+    // anthropic / google も同様に process.env 経由で apiKey を伝搬
+  }
+}</code></pre>
+      </dd>
+      <dt>症状</dt>
+      <dd>
+        <p>本書のコードをそのまま写経して進める範囲では問題なく動作します。ただし、配布リポジトリの <code>src/providers/modelFactory.ts</code> は付録 B（Responses API 対応）を含む拡張のため、次の 3 点で本書の記載と異なります。</p>
+        <ul>
+          <li><strong>シグネチャ</strong>：<code>createModelFromEnv(options?: { useResponses?: boolean })</code> のように Responses API の切替オプションを受け取ります。</li>
+          <li><strong><code>LLM_API_KEY</code> の扱い</strong>：未設定時に明示的に <code>throw</code> します（本書版はサイレント通過のため、後段の SDK 呼び出しで <code>401</code> として現れます）。</li>
+          <li><strong>API キーの渡し方</strong>：<code>createOpenAI({ apiKey })</code> のように直接引数で渡します（本書版は <code>process.env.&lt;PROVIDER&gt;_API_KEY</code> への代入経由）。</li>
+        </ul>
+        <p>このため、配布リポジトリの <code>bin/cli.ts --responses</code>（付録 B）を試そうとすると、本書版の <code>createModelFromEnv</code> には <code>useResponses</code> 切替が存在せず、付録 B のサンプルどおりに動作させられません。</p>
+      </dd>
+      <dt>対処</dt>
+      <dd>
+        <p>本書の章を順に進める読者は、本書のコードのままで問題ありません。配布リポジトリのコードを参照する場合や、付録 B（Responses API 対応）を試す場合は、リポジトリの <code>src/providers/modelFactory.ts</code> の実装を参照してください。</p>
+        <p>Responses API 切替を本書版に最小限取り込みたい場合は、OpenAI ケースに次の分岐を加える方法があります。</p>
+        <pre><code>case 'openai': {
+  if (apiKey &amp;&amp; !process.env.OPENAI_API_KEY) {
+    process.env.OPENAI_API_KEY = apiKey;
+  }
+  const useResponses = process.env.USE_RESPONSES_API === 'true';
+  const openai = useResponses ? createOpenAIResponses() : createOpenAI();
+  return openai(modelName);
+}</code></pre>
+      </dd>
+      <dt>補足</dt>
+      <dd>
+        <p>同様の経緯で、本書 6.4 節のコード片では Google ケースの API キーに <code>process.env.GOOGLE_API_KEY</code> を使っていますが、配布リポジトリの <code>.env.example</code> および <code>src/providers/google.ts</code> は <code>GEMINI_API_KEY</code> を優先します（<code>GOOGLE_API_KEY</code> もフォールバックとして読みます）。本書のコードは引き続き動作しますが、リポジトリの環境変数名は <code>GEMINI_API_KEY</code> である点に留意してください。</p>
+      </dd>
+    </dl>
+  </article>
+</section>
 
           <section class="chapter-group">
             <h2>第 7 章</h2>
